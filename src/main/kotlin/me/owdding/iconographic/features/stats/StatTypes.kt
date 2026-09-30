@@ -101,6 +101,12 @@ enum class StatType(
     TAMING_WISDOM(BASE_WISDOM),
     HUNTING_WISDOM(BASE_WISDOM),
 
+    // Rift
+    RIFT_TIME('', DisplayColor.GREEN),
+    RIFT_HEARTS('', DisplayColor.RED, "Hearts"),
+    RIFT_MANA_REGEN('', DisplayColor.AQUA, "Mana Regen"),
+    RIFT_DAMAGE('', DisplayColor.DARK_PURPLE),
+
     // Misc Stats
     SPEED('', DisplayColor.WHITE),
     MAGIC_FIND('', DisplayColor.AQUA),
