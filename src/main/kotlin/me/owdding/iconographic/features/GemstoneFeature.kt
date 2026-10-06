@@ -13,13 +13,13 @@ import me.owdding.iconographic.system.RegisterFeature
 import me.owdding.iconographic.system.Result
 import me.owdding.iconographic.system.TooltipFeature
 import me.owdding.iconographic.utils.chat.DisplayColor
+import me.owdding.iconographic.utils.chat.DisplayColor.DARK_GRAY
 import me.owdding.iconographic.utils.chat.DisplayColor.displayColor
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
-import net.minecraft.network.chat.TextColor.DARK_GRAY
 import net.minecraft.util.ARGB
 import net.minecraft.world.item.ItemStack
 import tech.thatgravyboat.skyblockapi.api.data.SkyBlockRarity
@@ -179,15 +179,21 @@ data object GemstoneFeature : TooltipFeature() {
                 slots.forEachIndexed { index, slot ->
                     val renderX = startX + (index * (slotSize + xSpacing))
 
-                    val [color, extraRenderer] = when (slot) {
-                        is VisualGemstoneSlot.Filled -> getQualityColor(slot.data.quality) to {
-                            graphics.item(slot.data.skyblockId.toItem(), renderX + (slotSize - 16) / 2, currentY + (slotSize - 16) / 2)
+                    val [color, extraRenderer, isLocked] = when (slot) {
+                        is VisualGemstoneSlot.Filled -> {
+                            Triple(
+                                getQualityColor(slot.data.quality),
+                                { graphics.item(slot.data.skyblockId.toItem(), renderX + (slotSize - 16) / 2, currentY + (slotSize - 16) / 2) },
+                                false
+                            )
                         }
 
                         is VisualGemstoneSlot.Empty -> {
                             val slotType = slot.slotType
-                            if (slotType != GemstoneSlot.UNKNOWN && slot.symbol.siblings.first().style.color != DARK_GRAY) {
-                                DisplayColor.DARK_GRAY to {
+                            val locked = slot.symbol.siblings.firstOrNull()?.style?.color?.value == TextColor.DARK_GRAY
+
+                            val renderer = if (slotType != GemstoneSlot.UNKNOWN && !locked) {
+                                {
                                     val gems = slotType.gemstones
                                     val cycleIndex = ((System.currentTimeMillis() / 1500) % gems.size).toInt()
                                     val currentGem = gems[cycleIndex]
@@ -203,12 +209,14 @@ data object GemstoneFeature : TooltipFeature() {
                                     )
                                 }
                             } else {
-                                DisplayColor.DARK_GRAY to {
+                                {
                                     val charX = renderX + slotSize / 2
                                     val charY = currentY + (slotSize - font.lineHeight) / 2 + 1
                                     graphics.centeredText(font, slot.symbol, charX, charY, -1)
                                 }
                             }
+
+                            Triple (DARK_GRAY, renderer, locked)
                         }
                     }
 
@@ -219,7 +227,7 @@ data object GemstoneFeature : TooltipFeature() {
                         currentY,
                         slotSize,
                         slotSize,
-                        ARGB.opaque(boostSaturation(color, 2.5f)) // idk if the boost saturation does anything here
+                        ARGB.opaque(if (!isLocked) boostSaturation(color, 2.5f) else color)
                     )
                     extraRenderer()
                 }
