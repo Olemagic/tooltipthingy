@@ -19,6 +19,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.client.renderer.RenderPipelines
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.TextColor.DARK_GRAY
 import net.minecraft.util.ARGB
 import net.minecraft.world.item.ItemStack
 import tech.thatgravyboat.skyblockapi.api.data.SkyBlockRarity
@@ -185,7 +186,7 @@ data object GemstoneFeature : TooltipFeature() {
 
                         is VisualGemstoneSlot.Empty -> {
                             val slotType = slot.slotType
-                            if (slotType != GemstoneSlot.UNKNOWN && slotType.gemstones.isNotEmpty()) {
+                            if (slotType != GemstoneSlot.UNKNOWN && slot.symbol.siblings.first().style.color != DARK_GRAY) {
                                 DisplayColor.DARK_GRAY to {
                                     val gems = slotType.gemstones
                                     val cycleIndex = ((System.currentTimeMillis() / 1500) % gems.size).toInt()
